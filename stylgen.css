@@ -1,0 +1,25 @@
+html
+{
+    background-color: black;
+}
+.canvas
+{
+    border: 1px dotted white;
+    position: absolute;
+}
+.canvass
+{
+    border: 1px dotted darkmagenta;
+    position: absolute;
+}
+#items
+{
+    position: relative;
+    float: left;
+    width: 45%;
+}
+#board
+{
+    position: relative;
+    margin-left: 46%;
+}
