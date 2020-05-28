@@ -6,11 +6,13 @@ html
 {
     border: 1px dotted white;
     position: absolute;
+    z-index: -1;
 }
 .canvass
 {
     border: 1px dotted darkmagenta;
     position: absolute;
+    z-index: -10;
 }
 #items
 {
@@ -22,4 +24,42 @@ html
 {
     position: relative;
     margin-left: 46%;
+}
+button
+{
+    position: absolute;
+    margin-top: 430px;
+    margin-left: 300px;
+}
+#checking
+{
+    background-color: rgba(241, 92, 184, 0.575);
+    border: 1px dotted indigo;
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    z-index: 20;
+    pointer-events: none;
+}
+#menu
+{
+    background-color: rgba(77, 37, 109, 0.8);
+    position: absolute;
+    color: pink;
+}
+td
+{
+    border: 1px dotted mediumorchid;
+    padding: 5px;
+    opacity: 0.5;
+}
+#input
+{
+    display: none;
+}
+#bloczek
+{
+    border: 1px solid aqua;
+    position: absolute;
+    opacity: 0.7;
 }

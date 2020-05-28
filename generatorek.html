@@ -3,16 +3,743 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="stylgen.css">
+    <link rel="shortcut icon" href="pacman.png">
     <title>generatorek</title>
     <script>
+        class Generator{
+            constructor(img,w){
+                //żeby wszystko działało poprawnie należy mieć uruchomiony liveserver
+                this.img=img;
+                this.w=w;
+                this.sizeOfItem = 20;
+                this.sizeOfElement = 22;
+                this.saved = [];
+                this.rectRight = [];
+                this.rectLeft = [];
+                this.checkedElements = [];
+                this.elementsToUndo = [];
+                this.elementsToRedo = [];
+                this.board=document.createElement("div");
+                this.main = document.createElement("div");
+                this.copies;
+                this.pastee = false;
+                this.fikusneBloczki();
+                this.bloczki;
+                this.start();
+                this.prawa();
+                this.lewa();
+                this.click = false;
+                this.ctrl = false;
+                this.keyClick();
+                this.rightClick();
+            }
+            start()
+            {
+                this.main.id = "main";
+                document.body.appendChild(this.main);
+                let items = document.createElement("div");
+                items.id = "items";
+                main.appendChild(items);
+                this.board.id = "board";
+                main.appendChild(this.board);
+            }
+            prawa()
+            {
+                for(let i = 0; i <= 35; i++)
+                {
+                    let tymczasowa = [];
+                    for(let j = 0; j <= 28; j++)
+                    {
+                        let canvas = document.createElement("canvas");
+                        canvas.className = "canvass";
+                        canvas.width=this.sizeOfElement;
+                        canvas.height=this.sizeOfElement;
+                        canvas.style.top = this.sizeOfElement * j + "px";
+                        canvas.style.left = this.sizeOfElement * i + "px";
+
+                        let ctx=canvas.getContext("2d");
+
+                        //ctx.drawImage(this.img,1+this.w*27+27,1+this.w*15+15,this.w,this.w,0,0,this.sizeOfElement,this.sizeOfElement);
+                        
+
+                        (this.board).appendChild(canvas);
+
+                        canvas.onclick = () =>
+                        {
+                            this.clickedElement(canvas);
+                            
+                            if(this.ctrl == true)
+                            {
+                                this.checkedElements.push(this.rectRight[i][j]);
+                                console.log(this.checkedElements);
+                            }
+                            else
+                            {
+                                this.checkedElements = [];
+                                this.checkedElements[0]=(this.rectRight[i][j]);
+                            }
+                            console.log(this.checkedElements);
+                        }
+                        this.board.onmousedown = (event) => 
+                        {
+                            if(event.button == 0)
+                            {
+                                this.checkingWithCtrl();
+                                
+                                if(this.ctrl == false)
+                                {
+                                    this.checkedElements = [];
+                                }
+                                
+                                let checking = document.createElement('div');
+                                checking.id = "checking";
+                                checking.style.left = event.pageX + "px";
+                                checking.style.top = event.pageY + "px";
+                                this.main.appendChild(checking);
+
+                                let firstX = event.pageX;
+                                let firstY = event.pageY;
+                                this.board.onmousemove = (e) =>
+                                {
+                                    if(e.pageY > event.pageY)
+                                    {
+                                        checking.style.top = event.pageY + "px";
+                                        checking.style.height = (e.pageY - event.pageY) + "px";
+                                    }
+                                    else
+                                    {
+                                        checking.style.top = (e.pageY) + "px";
+                                        checking.style.height = (event.pageY - e.pageY) + "px";
+                                    }
+                                    if(e.pageX > event.pageX)
+                                    {
+                                        checking.style.left = event.pageX + "px";
+                                        checking.style.width = (e.pageX - event.pageX) + "px";
+                                    }
+                                    else
+                                    {
+                                        checking.style.left = (e.pageX) + "px";
+                                        checking.style.width = (event.pageX - e.pageX) + "px";
+                                    }
+                                    console.log(checking.style.left);
+                                    let movedX = e.pageX;
+                                    let movedY = e.pageY;
+                                    
+                                    for(let p = 0; p <=35; p++)
+                                    {
+                                        for(let k = 0; k <=28; k++)
+                                        {
+                                            let canvasPosition = (this.rectRight[p][k].canvas).getBoundingClientRect()
+                                            if(canvasPosition.x > movedX && canvasPosition.x < firstX && canvasPosition.y > movedY && canvasPosition.y < firstY)
+                                            {
+                                                this.rectRight[p][k].canvas.style.background = "rgba(241, 92, 184, 0.7)";
+                                                this.rectRight[p][k].canvas.style.border = "1px solid #FB06A5";
+                                                if(!this.checkedElements.includes(this.rectRight[p][k]))
+                                                {
+                                                    this.checkedElements.push( this.rectRight[p][k]);
+                                                }
+                                            }
+                                            else if(canvasPosition.x > movedX && canvasPosition.x < firstX && canvasPosition.y < movedY && canvasPosition.y > firstY)
+                                            {
+                                                this.rectRight[p][k].canvas.style.background = "rgba(241, 92, 184, 0.7)";
+                                                this.rectRight[p][k].canvas.style.border = "1px solid #FB06A5";
+                                                if(!this.checkedElements.includes(this.rectRight[p][k]))
+                                                {
+                                                    this.checkedElements.push( this.rectRight[p][k]);
+                                                }
+                                            }
+                                            else if(canvasPosition.x < movedX && canvasPosition.x > firstX && canvasPosition.y < movedY && canvasPosition.y > firstY)
+                                            {
+                                                this.rectRight[p][k].canvas.style.background = "rgba(241, 92, 184, 0.7)";
+                                                this.rectRight[p][k].canvas.style.border = "1px solid #FB06A5";
+                                                if(!this.checkedElements.includes(this.rectRight[p][k]))
+                                                {
+                                                    this.checkedElements.push( this.rectRight[p][k]);
+                                                }
+                                            }
+                                            else if(canvasPosition.x < movedX && canvasPosition.x > firstX && canvasPosition.y > movedY && canvasPosition.y < firstY)
+                                            {
+                                                this.rectRight[p][k].canvas.style.background = "rgba(241, 92, 184, 0.7)";
+                                                this.rectRight[p][k].canvas.style.border = "1px solid #FB06A5";
+                                                if(!this.checkedElements.includes(this.rectRight[p][k]))
+                                                {
+                                                    this.checkedElements.push( this.rectRight[p][k]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        this.board.onmouseup = (event) => {
+                            if(event.button == 0)
+                            {
+                                document.getElementById("checking").parentElement.removeChild(document.getElementById("checking")); 
+                            }
+                            this.board.onmousemove=null;
+                        }
+
+                        let obiekt = {x: i, y: j, canvas: canvas};
+                        tymczasowa.push(obiekt);
+                    }
+                    this.rectRight.push(tymczasowa);
+                }
+               // console.log((this.rectRight[0][0].canvas).getBoundingClientRect())
+                //console.log((this.rectRight[0][1].canvas).getBoundingClientRect())
+            }
+            automatic(){
+                let lastElement = this.checkedElements.length - 1;
+                if([this.checkedElements[lastElement].x] <= 29)
+                {
+                    this.rectRight[this.checkedElements[lastElement].x+1][this.checkedElements[lastElement].y].canvas.click();
+                }
+                else
+                {
+                    this.rectRight[0][this.checkedElements[lastElement].y+1].canvas.click();
+                }
+            }
+            lewa()
+            {
+                for(let i = 0; i <= 31; i++)
+                {
+                    let tymczasowa = [];
+                    for(let j = 0; j <= 19; j++)
+                    {
+                        let canvas = document.createElement("canvas");
+                        canvas.className = "canvas";
+                        canvas.width=this.sizeOfItem;
+                        canvas.height=this.sizeOfItem;
+                        canvas.style.top = this.sizeOfItem * j + "px";
+                        canvas.style.left = this.sizeOfItem * i + "px";
+                        canvas.style.opacity = "0.3"  
+
+                        let ctx=canvas.getContext("2d");
+
+                        ctx.drawImage(this.img,1+this.w*i+i,1+this.w*j+j,this.w,this.w,0,0,this.sizeOfItem,this.sizeOfItem);
+
+                        items.appendChild(canvas);
+                        canvas.onmouseover = function()
+                        {
+                            canvas.style.opacity = "1";
+                        }
+                        canvas.onmouseleave = function()
+                        {
+                            canvas.style.opacity = "0.3";
+                        }
+                        canvas.onclick = () =>
+                        {
+                            this.clickedSprite(canvas,i,j);
+                            this.automatic();
+                        }
+                        let obiekt = {x: i, y: j, canvas: canvas};
+                        tymczasowa.push(obiekt);
+                    }
+                    this.rectLeft.push(tymczasowa);
+                }
+            }
+            clickedSprite(canvas,i,j)
+            {
+                let tymczasowa = [];
+                this.deleted = [];
+               this.checkedElements.forEach(element => {
+                ((element.canvas).getContext("2d")).drawImage(this.img,1+this.w*i+i,1+this.w*j+j,this.w,this.w,0,0,this.sizeOfElement,this.sizeOfElement);
+                tymczasowa.push({i:i,j:j,canvas:element.canvas,x:element.x,y:element.y,img:element.canvas.toDataURL("image.jpeg", 0.75)});
+               });
+               this.elementsToUndo.push(tymczasowa);
+                (this.saved).push(`img,${1+this.w*i+i},${1+this.w*j+j},${this.w},${this.w},${i*this.sizeOfElement},${j*this.sizeOfElement},${this.sizeOfElement},${this.sizeOfElement};`);
+            }
+            clickedElement(hmm)
+            {
+                this.checkingWithCtrl();
+                
+                hmm.style.border = "1px solid #FB06A5";
+                hmm.style.background = "rgba(241, 92, 184, 0.7)";
+
+                this.paste = () =>
+                {
+                    if(this.copies.length > 0)
+                    {
+                        let left = parseInt(hmm.style.left.split("p")[0])/22;
+                        let top = parseInt(hmm.style.top.split("p")[0])/22;
+                        let a = 0;
+                        let tymczasowa = [];
+                        this.copies.forEach(element => {
+                            let newLeft = left + element.left;
+                            let newTop = top + element.top;
+                            for(let i = 0; i < this.rectRight.length; i++)
+                            {
+                                for(let j = 0; j < this.rectRight[i].length; j++)
+                                {
+                                    if(this.rectRight[i][j].canvas.style.left == (newLeft * 22 + "px") && this.rectRight[i][j].canvas.style.top == (newTop * 22 + "px"))
+                                    {
+                                        tymczasowa.push({i:0,j:0,canvas:this.rectRight[i][j].canvas,x:this.rectRight[i][j].x,y:this.rectRight[i][j].y,img:this.rectRight[i][j].canvas.toDataURL("image.jpeg", 0.75)});
+                                        const image = new Image();
+                                        image.addEventListener("load", ()=>{
+                                            this.rectRight[i][j].canvas.getContext("2d").drawImage(image, 0, 0, this.sizeOfElement, this.sizeOfElement);
+                                        });
+                                        image.src = this.copies[a].img;
+                                        a++;
+                                    }
+                                }
+                            }            
+                        });
+                        this.elementsToUndo.push(tymczasowa);
+                    }       
+                }  
+                if(this.pastee == true)
+                {
+                    this.paste();
+                    this.pastee = false;
+                    main.removeChild(document.getElementById("bloczek"));
+                } 
+            }
+            fikusneBloczki()
+            {
+                console.log(this.pastee);
+                if(this.pastee == true)
+                {
+                    let bloczek = document.createElement("canvas");
+                    bloczek.id = "bloczek";
+                    
+                    let tymczasowal = [];
+                    let tymczasowat = [];
+                    this.copies.forEach(element => {
+                        tymczasowal.push(element.left);
+                        tymczasowat.push(element.top);
+                    });
+                    bloczek.width = (Math.max.apply(null,tymczasowal) + 1) * this.sizeOfElement;
+                    bloczek.height = (Math.max.apply(null,tymczasowat) + 1) * this.sizeOfElement;
+                    main.appendChild(bloczek);
+                    
+                    this.copies.forEach(element => 
+                    {
+                        console.log(element.left);
+                        console.log(element.top);
+                        let imageee = new Image();
+                        imageee.addEventListener("load", ()=>
+                        {
+                            bloczek.getContext("2d").drawImage(imageee, element.left*this.sizeOfElement, element.top*this.sizeOfElement, this.sizeOfElement, this.sizeOfElement);
+                        });
+                        imageee.src = element.img; 
+                    });
+                    //console.log(Math.max.apply(null,tymczasowal));
+                    this.board.onmousemove = (e) =>
+                    {
+                        bloczek.style.left = e.pageX + 10 + "px";
+                        bloczek.style.top = e.pageY + 10 + "px";
+                    }
+                }
+            }
+            checkingWithCtrl()
+            {
+                if(this.ctrl == false)
+                {
+                    for(let i = 0; i <= 35; i++)
+                    {
+                        for(let j = 0; j <= 28; j++)
+                        {
+                            this.rectRight[i][j].canvas.style.background = "";
+                            this.rectRight[i][j].canvas.style.border = "1px dotted darkmagenta";
+                        }
+                    }
+                }
+            }
+            rightClick()
+            {
+                document.getElementById("board").oncontextmenu = (e)=>
+                {
+                    if(this.click == true)
+                    {
+                        document.getElementById("menu").remove();
+                        this.click = false;
+                    }
+                    //console.log(e.pageX)
+                    if(e.button == 2)
+                    {
+                        e.preventDefault();
+                        let menu = document.createElement("div");
+                        menu.id = "menu";
+                        menu.style.left = e.pageX + "px";
+                        menu.style.top = e.pageY + "px";
+                        //console.log(e.button);
+                        //console.log(document.getElementById("main"))
+                        this.main.appendChild(menu);
+                        let table = document.createElement("table");
+                        let nazwy = ["Undo","Redo","Cut","Copy","Paste","Delete","Save to file","Load data from file"]
+                        for(let i =0; i < nazwy.length; i++)
+                        {
+                            let tr = document.createElement("tr");
+                            let td = document.createElement("td");
+                            td.innerText = nazwy[i];
+                            td.id = nazwy[i];
+                            table.appendChild(tr);
+                            tr.appendChild(td);
+                            td.onmouseover = function()
+                            {
+                                td.style.opacity = "1";
+                            }
+                            td.onmouseleave = function()
+                            {
+                                td.style.opacity = "0.5";
+                            }
+                            td.onclick = ()=>
+                            {
+                                switch (td.id) {
+                                    case "Undo":
+                                        this.undo();
+                                        break;
+                                    
+                                    case "Redo":                                                                                                                                                                                                                                                                                                                                                                                                                                      this.redo();
+                                        this.redo();
+                                        break;
+                                    
+                                    case "Delete":
+                                        this.delete();
+                                        break;
+
+                                    case "Copy":
+                                        this.copy();
+                                        break;
+
+                                    case "Paste":
+                                        this.pastee = true;
+                                        this.fikusneBloczki();
+                                        break;
+
+                                    case "Save to file":
+                                        this.save();
+                                        break;
+
+                                    case "Cut":
+                                        this.cut();
+                                        break;
+
+                                    case "Load data from file":
+                                        this.load();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        menu.appendChild(table);
+                        this.click = true;
+                    }
+                }
+                document.getElementById("main").onclick = ()=>
+                {
+                    if(this.click == true)
+                    {
+                        document.getElementById("menu").remove();
+                        this.click = false;
+                    }
+                }
+            }
+            keyClick()
+            {
+                document.onkeydown = (e)=>
+                {
+                    if(e.key == "Delete")
+                    {
+                        this.delete();
+                    }
+                    if(navigator.userAgent.includes("Windows"))
+                    {
+                        if(e.key == "Control")
+                        {
+                            this.ctrl = true;
+                        }
+                    }
+                    else if(navigator.userAgent.includes("Macintosh"))
+                    {
+                        if(e.key == "Meta")
+                        {
+                            this.ctrl = true;
+                        }
+                    }
+                    if(this.ctrl == true)
+                    {
+                        console.log(e.key);
+                        switch(e.key)
+                        {
+                            case "z":
+                                this.undo();
+                                break;
+                            case "y":
+                                this.redo();
+                                break;
+                            case "c":
+                                this.copy();
+                                break;
+                            case "v":
+                                this.pastee = true;
+                                this.fikusneBloczki();
+                                break;
+                            case "x":
+                                this.cut();
+                                break;
+                            case "s":
+                                e.preventDefault();
+                                this.save();
+                                break;
+                            case "l":
+                                e.preventDefault();
+                                this.load();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                document.onkeyup = (e)=>
+                {
+                    if(navigator.userAgent.includes("Windows"))
+                    {
+                        if(e.key == "Control")
+                        {
+                            this.ctrl = false;
+                        }
+                    }
+                    else if(navigator.userAgent.includes("Macintosh"))
+                    {
+                        if(e.key == "Meta")
+                        {
+                            this.ctrl = false;
+                        }
+                    }
+                }
+            }
+            undo()
+            {
+                if(this.elementsToUndo.length > 0)
+                {
+                    let number = this.elementsToUndo.indexOf(this.elementsToUndo[this.elementsToUndo.length-1])
+                    let canvasToUndo = this.elementsToUndo[this.elementsToUndo.length-1];
+                    this.elementsToUndo.splice(number,1);
+
+                    let tymczasowa = [];
+                    canvasToUndo.forEach(element => 
+                    {
+                        tymczasowa.push({i:0,j:0,canvas:element.canvas,x:element.x,y:element.y,img:element.canvas.toDataURL("image.jpeg", 0.75)});
+                        let empty = true;
+                        this.elementsToUndo.forEach(e => {
+                            e.forEach(p => {
+                                if(p.canvas == element.canvas)
+                                {
+                                    const imageee = new Image();
+                                    imageee.addEventListener("load", ()=>{
+                                    element.canvas.getContext("2d").drawImage(imageee, 0, 0, 22, 22);
+                                    });
+                                     imageee.src = p.img;
+                                     empty = false;
+                                }
+                            });
+                        });
+                        if(empty == true)
+                        {
+                            element.canvas.getContext('2d').clearRect(0, 0, element.canvas.width, element.canvas.height);
+                        }
+                        else
+                        {
+                            element.canvas.getContext('2d').drawImage(this.img,1+this.w*i+i,1+this.w*j+j,this.w,this.w,0,0,this.sizeOfElement,this.sizeOfElement);
+                        }
+                    });
+                    this.elementsToRedo.push(tymczasowa);
+                }
+            }
+            redo()
+            {
+                if(this.elementsToRedo.length > 0)
+                {
+                    console.log(this.elementsToRedo);
+                    let canvasToRedo = this.elementsToRedo[this.elementsToRedo.length-1];
+                    let number = this.elementsToRedo.indexOf(this.elementsToRedo[this.elementsToRedo.length-1])
+                    let tymczasowa = [];
+                    console.log(canvasToRedo);
+                    canvasToRedo.forEach(element => {
+                        console.log(element.img);
+                        if(element.img.includes("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAAK0lEQVRIS2NkoBFgpJG5DKMGw0N2NChGgwIzm42mitFUMZoq8FQ/Qy+DAABfmwAXkrQZXQAAAABJRU5ErkJggg=="))
+                        {
+                            ((element.canvas).getContext("2d")).clearRect(0, 0, element.canvas.width, element.canvas.height);
+                        }
+                        else
+                        {
+                            const imgg = new Image();
+                            imgg.addEventListener("load", ()=>{
+                                element.canvas.getContext("2d").drawImage(imgg, 0, 0, 22, 22);
+                            });
+                            imgg.src = element.img;
+                        }
+                        
+                        tymczasowa.push(element);
+                    });
+                    this.elementsToUndo.push(tymczasowa);
+                    this.elementsToRedo.splice(number,1);
+                }
+            }
+            delete()
+            {
+                var tymczasowaa = [];
+                this.checkedElements.forEach(element => {
+                    console.log(tymczasowaa);
+                   // tymczasowaa.push(1)
+                //tymczasowa.push({i:0,j:0,canvas:element.canvas,x:element.x,y:element.y,img:element.canvas.toDataURL("image.jpeg", 0.75)})
+                    ((element.canvas).getContext("2d")).clearRect(0, 0, element.canvas.width, element.canvas.height);
+               });
+            }
+            copy()
+            {
+                this.copies = [];
+                if(this.checkedElements.length > 0)
+                {
+                    let tymczasowal = [];
+                    let tymczasowat = [];
+                    this.checkedElements.forEach(element =>{
+                        let picture = element.canvas.toDataURL("image.jpeg", 0.75);
+                        let left = element.canvas.style.left.split("p");
+                        let top = element.canvas.style.top.split("p");
+                        this.copies.push({left:parseInt(left[0])/22, top:parseInt(top[0])/22,img:picture});
+                        tymczasowal.push(parseInt(left[0]/22));
+                        tymczasowat.push(parseInt(top[0]/22));
+                    })
+                    this.copies.forEach(element => {
+                        element.left = element.left - Math.min.apply(null, tymczasowal);
+                        element.top = element.top - Math.min.apply(null, tymczasowat);
+                    });
+                }
+            }
+            cut()
+            {
+                this.copies = [];
+                if(this.checkedElements.length > 0)
+                {
+                    let tymczasowal = [];
+                    let tymczasowat = [];
+                    let tymczasowak = [];
+                    this.checkedElements.forEach(element =>{
+                        let picture = element.canvas.toDataURL("image.jpeg", 0.75);
+                        let left = element.canvas.style.left.split("p");
+                        let top = element.canvas.style.top.split("p");
+                        this.copies.push({left:parseInt(left[0])/22, top:parseInt(top[0])/22,img:picture});
+                        tymczasowal.push(parseInt(left[0]/22));
+                        tymczasowat.push(parseInt(top[0]/22));
+                        tymczasowak.push({i:0,j:0,canvas:element.canvas,x:element.x,y:element.y,img:picture});
+                        ((element.canvas).getContext("2d")).clearRect(0, 0, element.canvas.width, element.canvas.height);
+                    })
+                    this.copies.forEach(element => {
+                        element.left = element.left - Math.min.apply(null, tymczasowal);
+                        element.top = element.top - Math.min.apply(null, tymczasowat);
+                    });
+                    this.elementsToUndo.push(tymczasowak);
+                }
+
+            }
+            save()
+            {
+                console.log("działa")
+                let toSave = [];
+                    for(let i = 0; i < this.rectRight.length; i++)
+                    {
+                        for(let j = 0; j < this.rectRight[i].length; j++)
+                        {
+                            let picture = this.rectRight[i][j].canvas.toDataURL("image.jpeg", 0.75);
+                            toSave.push({img: picture,x:this.rectRight[i][j].x,y:this.rectRight[i][j].y});
+                        }
+                    }
+                console.log(toSave);
+                var blob = new Blob([JSON.stringify(toSave)], {type: "text/plain"});
+                download(blob, "mapa.js");
+                function download(blob, name)
+                {
+                    var url = URL.createObjectURL(blob),
+                        div = document.createElement("div"),
+                        anch = document.createElement("a");
+                    document.body.appendChild(div);
+                    div.appendChild(anch);
+                    anch.innerHTML = "&nbsp;";
+                    div.style.width = "0";
+                    div.style.height = "0";
+                    anch.href = url;
+                    anch.download = name;
+
+                    var ev= new MouseEvent("click", {});
+                    anch.dispatchEvent(ev);
+                    document.body.removeChild(div);
+                }
+            }
+            load()
+            {
+                document.getElementById('input').click();
+                let tablica = this.rectRight;
+                let sprite = this.rectLeft;
+                document.getElementById('input').onchange = ()=>
+                {
+                    function startRead() {
+                    var file = document.getElementById('input').files[0];
+                    console.log(file);
+                        if(file){
+                            getAsText(file);
+                        }
+                    }
+                    startRead();
+
+                    function getAsText(readFile) {
+
+                    var reader = new FileReader();
+                    console.log(reader);
+
+                    reader.readAsText(readFile, "UTF-8");
+
+                    reader.onload = loaded;
+                    }
+
+                    function loaded(evt) 
+                    {
+                        var fileString = evt.target.result;
+                        //console.log(fileString);
+                        //console.log(typeof fileString);
+                        let tab = JSON.parse(fileString);
+                        //console.log(tab);
+                        console.log(sprite)
+                        for(let i = 0; i < tablica.length; i++)
+                        {
+                            for(let j = 0; j < tablica[i].length; j++)
+                            {
+                                tablica[i][j].canvas.getContext("2d").clearRect(0, 0, tablica[i][j].canvas.width, tablica[i][j].canvas.height);
+                            }
+                        }
+                        tab.forEach(element => {
+
+                            for(let i = 0; i < tablica.length; i++)
+                            {
+                                for(let j = 0; j < tablica[i].length; j++)
+                                {
+                                    if(element.x == tablica[i][j].x && element.y == tablica[i][j].y)
+                                    {
+                                        //console.log(tablica[i][j].canvas)
+                                        const imagee = new Image();
+                                        imagee.addEventListener("load", ()=>{
+                                            tablica[i][j].canvas.getContext("2d").drawImage(imagee, 0, 0, 22, 22);
+                                        });
+                                        imagee.src = element.img;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', (event) => {
             let parameters = [];
             let saved = [];
             const sizeOfBox = 47;
             const size = 15;
-            const margin = 40;
+            const margin = 28;
             for(i = 0; i <= 32; i++)
             {
                 parameters[i] = [];
@@ -28,114 +755,18 @@
                                         height: size})
                 }
             }
-            let main = document.createElement("div");
-            main.id = "main";
-            document.body.appendChild(main);
-            let items = document.createElement("div");
-            items.id = "items";
-            main.appendChild(items);
-            let board = document.createElement("div");
-            board.id = "board";
-            main.appendChild(board);
-
-            const sizeOfItem = 20;
+           
             const img = new Image();
             img.src = 'sprites.png';
 
             img.addEventListener('load', function() 
             {
-                for(let i = 0; i <= 31; i++)
-                {
-                    for(let j = 0; j <= 19; j++)
-                    {
-                        let canvas = document.createElement("canvas");
-                        canvas.className = "canvas";
-                        canvas.id = "s" + i.toString() + j.toString();
-                        canvas.width=sizeOfItem;
-                        canvas.height=sizeOfItem;
-                        canvas.style.top = sizeOfItem * j + "px";
-                        canvas.style.left = sizeOfItem * i + "px";
-                        canvas.style.opacity = "0.3"  
-
-                        let ctx=canvas.getContext("2d");
-
-                        ctx.drawImage(img,1+47*i+i,1+47*j+j,47,47,0,0,sizeOfItem,sizeOfItem)
-
-                        items.appendChild(canvas);
-                        canvas.onmouseover = function()
-                        {
-                            //console.log(this);
-                            canvas.style.opacity = "1";
-                        }
-                        canvas.onmouseleave = function()
-                        {
-                            canvas.style.opacity = "0.3";
-                        }
-                        canvas.onclick = function()
-                        {
-                            clickedSprite(canvas,i,j);
-                        }
-                    }
-                }
+                gen=new Generator(img,47);
             });
-
-            let boardElement;
-
-            const sizeOfElement = 25
-            img.addEventListener('load', function() 
-            {
-                for(let i = 0; i <= 30; i++)
-                {
-                    for(let j = 0; j <= 40; j++)
-                    {
-                        let canvas = document.createElement("canvas");
-                        canvas.className = "canvass";
-                        canvas.id = "b" + i.toString() + "j"+ j.toString();
-                        canvas.width=sizeOfElement;
-                        canvas.height=sizeOfElement;
-                        canvas.style.top = sizeOfElement * j + "px";
-                        canvas.style.left = sizeOfElement * i + "px";
-
-                        let ctx=canvas.getContext("2d");
-
-                        //ctx.drawImage(img,1+47*i+i,1+47*j+j,47,47,0,0,sizeOfItem,sizeOfItem)
-
-                        board.appendChild(canvas);
-                        
-                        canvas.onclick = function()
-                        {
-                            console.log(canvas)
-                            clickedElement(canvas);
-                        }
-                    }
-                }
-            });
-
-            let clickedElement = function(hmm)
-            {
-                for(let i = 0; i <= 30; i++)
-                {
-                    for(let j = 0; j <= 40; j++)
-                    {
-                        document.getElementById("b"+i.toString()+"j"+j.toString()).style.background = "";
-                        document.getElementById("b"+i.toString()+"j"+j.toString()).style.border = "1px dotted darkmagenta";
-                    }
-                }
-                hmm.style.border = "1px solid #FB06A5";
-                hmm.style.background = "#FB06A5";
-                boardElement = hmm.id;
-            }
-            let clickedSprite = function(hmm,i,j)
-            {
-                console.log(hmm.id);
-                console.log(document.getElementById(boardElement));
-                (document.getElementById(boardElement).getContext("2d")).drawImage(img,1+47*i+i,1+47*j+j,47,47,0,0,sizeOfElement,sizeOfElement);
-                saved.push(`${img},${1+47*i+i},${1+47*j+j},${47},${47},${0},${0},${sizeOfElement},${sizeOfElement}`);
-                console.log(saved);
-            }
         });
     </script>
 </head>
 <body>
+    <input type="file" id="input" multiple>
 </body>
 </html>
